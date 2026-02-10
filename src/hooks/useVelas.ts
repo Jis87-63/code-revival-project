@@ -2,11 +2,11 @@ import { useEffect, useState } from "react";
 import { db, ref, onValue } from "@/lib/firebase";
 
 export interface VelaRecord {
-  timestamp: number;
-  ultimaVela: number;
+  timestamp: number | string;
+  ultimaVela: number | string;
   maiorVela: number;
   totalVelas: number;
-  velas: number[];
+  velas: (number | string)[];
 }
 
 export const useVelas = () => {
@@ -22,16 +22,31 @@ export const useVelas = () => {
       if (!dados) return;
 
       const records: VelaRecord[] = Object.values(dados);
-      records.sort((a, b) => b.timestamp - a.timestamp);
+      records.sort((a, b) => {
+        const tsA = typeof a.timestamp === "string" ? new Date(a.timestamp).getTime() : a.timestamp;
+        const tsB = typeof b.timestamp === "string" ? new Date(b.timestamp).getTime() : b.timestamp;
+        return tsB - tsA;
+      });
 
       setAllRecords(records);
 
       if (records.length > 0) {
         const latest = records[0];
-        setUltimaVela(latest.ultimaVela);
-        setLastTimestamp(latest.timestamp);
-        // Get last 4 velas from the most recent record
-        const velas4 = latest.velas.slice(0, 4);
+        // ultimaVela can be "1.73x" string or number
+        const uv = typeof latest.ultimaVela === "string"
+          ? parseFloat(latest.ultimaVela.replace("x", ""))
+          : Number(latest.ultimaVela);
+        setUltimaVela(isNaN(uv) ? null : uv);
+        // timestamp can be ISO string or number
+        const ts = typeof latest.timestamp === "string"
+          ? new Date(latest.timestamp).getTime()
+          : latest.timestamp;
+        setLastTimestamp(ts);
+        // Get last 4 velas, parsing string values
+        const velas4 = (latest.velas || []).slice(0, 4).map((v: any) => {
+          const n = typeof v === "string" ? parseFloat(v.toString().replace("x", "")) : Number(v);
+          return isNaN(n) ? 0 : n;
+        });
         setLatestVelas(velas4);
       }
     });

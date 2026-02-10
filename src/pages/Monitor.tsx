@@ -7,19 +7,25 @@ const Monitor = () => {
   const { allRecords } = useVelas();
   const navigate = useNavigate();
 
+  const parseTs = (t: number | string) => typeof t === "string" ? new Date(t).getTime() : t;
+  const parseVela = (v: number | string) => {
+    const n = typeof v === "string" ? parseFloat(v.toString().replace("x", "")) : Number(v);
+    return isNaN(n) ? 0 : n;
+  };
+
   const todayStats = useMemo(() => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const todayMs = today.getTime();
 
-    const todayRecords = allRecords.filter((r) => r.timestamp >= todayMs);
+    const todayRecords = allRecords.filter((r) => parseTs(r.timestamp) >= todayMs);
     const totalVelas = todayRecords.reduce((acc, r) => acc + (r.totalVelas || 0), 0);
 
     let greens = 0;
     let losses = 0;
     todayRecords.forEach((r) => {
-      r.velas.forEach((v) => {
-        if (v >= 2) greens++;
+      (r.velas || []).forEach((v) => {
+        if (parseVela(v) >= 2) greens++;
         else losses++;
       });
     });
@@ -60,26 +66,29 @@ const Monitor = () => {
               <li key={i} className="bg-card-inner border border-border rounded-lg p-3 text-sm">
                 <div className="flex justify-between items-center mb-1">
                   <span className="text-muted-foreground text-xs">
-                    {new Date(r.timestamp).toLocaleString("pt-BR")}
+                    {new Date(parseTs(r.timestamp)).toLocaleString("pt-BR")}
                   </span>
                   <span className="text-xs text-info font-bold">{r.totalVelas} velas</span>
                 </div>
                 <div className="flex gap-1.5 flex-wrap">
-                  {r.velas.slice(0, 6).map((v, j) => (
-                    <span
-                      key={j}
-                      className={`text-xs px-2 py-0.5 rounded-md font-bold bg-[hsl(220,20%,10%)] ${
-                        v < 2
-                          ? "text-[hsl(217,91%,68%)]"
-                          : v < 10
-                          ? "text-[hsl(270,70%,65%)]"
-                          : "text-[hsl(330,80%,65%)]"
-                      }`}
-                    >
-                      {v.toFixed(2)}x
-                    </span>
-                  ))}
-                  {r.velas.length > 6 && (
+                  {(r.velas || []).slice(0, 6).map((v, j) => {
+                    const num = parseVela(v);
+                    return (
+                      <span
+                        key={j}
+                        className={`text-xs px-2 py-0.5 rounded-md font-bold bg-[hsl(220,20%,10%)] ${
+                          num < 2
+                            ? "text-[hsl(217,91%,68%)]"
+                            : num < 10
+                            ? "text-[hsl(270,70%,65%)]"
+                            : "text-[hsl(330,80%,65%)]"
+                        }`}
+                      >
+                        {num.toFixed(2)}x
+                      </span>
+                    );
+                  })}
+                  {(r.velas || []).length > 6 && (
                     <span className="text-xs text-muted-foreground">+{r.velas.length - 6}</span>
                   )}
                 </div>
