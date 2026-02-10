@@ -19,7 +19,7 @@ const Index = () => {
   useNotifications();
 
   const displayVelas = latestVelas.length > 0 ? latestVelas : [1.23, 3.45, 1.87, 12.5];
-  const aposde = ultimaVela ? `${ultimaVela.toFixed(2)}x` : "1.50x";
+  const aposde = ultimaVela != null ? `${Number(ultimaVela).toFixed(2)}x` : "1.50x";
 
   return (
     <div className="min-h-screen pb-16 select-none">
