@@ -40,7 +40,7 @@ const PromoModal = () => {
             <button
               onClick={() => {
                 close("premium", 40000);
-                window.open("https://txunaplay.com/t2f909f66", "_blank");
+                window.open("https://txunaplay.com/te44bfd5e", "_blank");
               }}
               className="flex-1 bg-primary text-primary-foreground rounded-lg py-3.5 font-semibold uppercase text-sm hover:brightness-110 transition-all"
             >
@@ -67,7 +67,7 @@ const PromoModal = () => {
           <button
             onClick={() => {
               close("aviso", 40000);
-              window.open("https://chat.whatsapp.com/BqAAbfMWDKa9ft0GR7Oxai", "_blank");
+              window.open("https://chat.whatsapp.com/KTUchKsM5IWFW69ttbu2RK?mode=gi_t", "_blank");
             }}
             className="w-full bg-primary text-primary-foreground rounded-lg py-4 font-bold uppercase text-[15px] tracking-wide shadow-[0_0_15px_hsl(var(--primary)/0.4)] animate-heartbeat hover:brightness-110 transition-all"
           >
@@ -105,7 +105,8 @@ const PromoModal = () => {
             <button
               onClick={() => {
                 close("whatsapp", 180000);
-                window.open("https://robo-cyber-hacker.onrender.com/", "_blank");
+                const msg = encodeURIComponent("Gostaria de obter a versão paga do Bot 100%");
+                window.open(`https://wa.me/258871009140?text=${msg}`, "_blank");
               }}
               className="flex-1 bg-destructive text-destructive-foreground rounded-lg py-3.5 font-semibold uppercase text-sm hover:brightness-110 transition-all"
             >

@@ -58,12 +58,21 @@
 @layer base {
   * {
     @apply border-border;
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
+  }
+
+  input, textarea {
+    -webkit-user-select: text;
+    user-select: text;
   }
 
   body {
     @apply bg-background text-foreground font-sans;
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     min-height: 100vh;
+    overscroll-behavior: none;
   }
 }
 
