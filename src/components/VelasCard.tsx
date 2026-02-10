@@ -4,10 +4,12 @@ interface VelasCardProps {
 
 const VelasCard = ({ velas }: VelasCardProps) => {
   const getVelaTextColor = (value: number) => {
-    if (value < 2) return "text-[hsl(217,91%,68%)]"; // blue
-    if (value < 10) return "text-[hsl(270,70%,65%)]"; // purple
-    return "text-[hsl(330,80%,65%)]"; // pink
+    if (value < 2) return "text-[hsl(217,91%,68%)]";
+    if (value < 10) return "text-[hsl(270,70%,65%)]";
+    return "text-[hsl(330,80%,65%)]";
   };
+
+  const parsed = velas.slice(0, 4).map((v) => Number(v));
 
   return (
     <div className="bg-card border border-border rounded-xl p-4">
@@ -23,7 +25,7 @@ const VelasCard = ({ velas }: VelasCardProps) => {
         </span>
       </h3>
       <ul className="flex gap-2 flex-wrap list-none">
-        {velas.slice(0, 4).map((v, i) => {
+        {parsed.map((v, i) => {
           const textColor = getVelaTextColor(v);
           return (
             <li
