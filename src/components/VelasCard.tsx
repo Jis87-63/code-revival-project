@@ -3,9 +3,10 @@ interface VelasCardProps {
 }
 
 const VelasCard = ({ velas }: VelasCardProps) => {
-  const getVelaColors = (value: number) => {
-    if (value < 2) return { bg: "bg-[hsl(0,40%,12%)]", text: "text-[hsl(0,100%,68%)]" };
-    return { bg: "bg-[hsl(150,40%,10%)]", text: "text-primary" };
+  const getVelaTextColor = (value: number) => {
+    if (value < 2) return "text-[hsl(217,91%,68%)]"; // blue
+    if (value < 10) return "text-[hsl(270,70%,65%)]"; // purple
+    return "text-[hsl(330,80%,65%)]"; // pink
   };
 
   return (
@@ -22,12 +23,12 @@ const VelasCard = ({ velas }: VelasCardProps) => {
         </span>
       </h3>
       <ul className="flex gap-2 flex-wrap list-none">
-        {velas.map((v, i) => {
-          const colors = getVelaColors(v);
+        {velas.slice(0, 4).map((v, i) => {
+          const textColor = getVelaTextColor(v);
           return (
             <li
               key={i}
-              className={`px-3.5 py-2 rounded-lg text-sm font-bold border border-border ${colors.bg} ${colors.text}`}
+              className={`px-3.5 py-2 rounded-lg text-sm font-bold border border-border bg-[hsl(220,20%,10%)] ${textColor}`}
             >
               {v.toFixed(2)}x
             </li>
