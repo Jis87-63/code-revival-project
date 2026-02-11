@@ -30,7 +30,7 @@ const VelasCard = ({ velas }: VelasCardProps) => {
           return (
             <li
               key={i}
-              className={`px-3.5 py-2 rounded-lg text-sm font-bold border border-border bg-[hsl(220,20%,10%)] ${textColor}`}
+              className={`min-w-[60px] max-w-[80px] px-2.5 py-1.5 rounded-lg text-sm font-bold border border-border bg-[hsl(220,20%,10%)] text-center truncate ${textColor}`}
             >
               {v.toFixed(2)}x
             </li>
