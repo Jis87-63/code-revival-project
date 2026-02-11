@@ -9,10 +9,10 @@ import { useNotifications } from "@/hooks/useNotifications";
 import { usePrediction } from "@/hooks/usePrediction";
 
 const Index = () => {
-  const { latestVelas, ultimaVela, allRecords } = useVelas();
+  const { latestVelas, ultimaVela, lastTimestamp, allRecords } = useVelas();
   useNotifications();
 
-  const prediction = usePrediction(allRecords, ultimaVela);
+  const prediction = usePrediction(allRecords, ultimaVela, lastTimestamp);
   const displayVelas = latestVelas.length > 0 ? latestVelas : [1.23, 3.45, 1.87, 12.5];
 
   return (

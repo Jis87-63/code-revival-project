@@ -2,11 +2,11 @@ import { useMemo } from "react";
 import { type VelaRecord } from "@/hooks/useVelas";
 
 export interface Prediction {
-  aposde: string;      // predicted entry point e.g. "1.50x"
-  cashout: string;     // predicted cashout e.g. "2.00x"
-  maxGales: string;    // max retries
+  aposde: string;
+  cashout: string;
+  maxGales: string;
   status: "green" | "loss" | "waiting";
-  placar: string;      // e.g. "GREEN 3.45x" or "--"
+  placar: string;
 }
 
 const parseVela = (v: number | string): number => {
@@ -14,23 +14,36 @@ const parseVela = (v: number | string): number => {
   return isNaN(n) ? 0 : n;
 };
 
-/**
- * Prediction algorithm based on recent vela patterns.
- * Analyses the last N velas to find trends and predict optimal entry/cashout points.
- */
-export const usePrediction = (allRecords: VelaRecord[], ultimaVela: number | null): Prediction => {
+const INACTIVITY_THRESHOLD = 10 * 60 * 1000; // 10 minutes
+
+export const usePrediction = (
+  allRecords: VelaRecord[],
+  ultimaVela: number | null,
+  lastTimestamp: number | null
+): Prediction => {
   return useMemo(() => {
-    if (allRecords.length === 0 || ultimaVela === null) {
-      return {
-        aposde: "--",
-        cashout: "--",
-        maxGales: "--",
-        status: "waiting",
-        placar: "--",
-      };
+    const inactive: Prediction = {
+      aposde: "--",
+      cashout: "--",
+      maxGales: "--",
+      status: "waiting",
+      placar: "--",
+    };
+
+    if (allRecords.length === 0 || ultimaVela === null || lastTimestamp === null) {
+      return inactive;
     }
 
-    // Gather last 20 velas from recent records
+    // If system inactive for 10+ minutes, don't predict
+    const timeSinceLast = Date.now() - lastTimestamp;
+    if (timeSinceLast >= INACTIVITY_THRESHOLD) {
+      return inactive;
+    }
+
+    // "Após" = the most recent vela that just came in (ultimaVela)
+    const aposde = `${ultimaVela.toFixed(2)}x`;
+
+    // Gather last 20 velas for analysis
     const recentVelas: number[] = [];
     for (const record of allRecords) {
       for (const v of record.velas || []) {
@@ -41,80 +54,55 @@ export const usePrediction = (allRecords: VelaRecord[], ultimaVela: number | nul
     }
 
     if (recentVelas.length < 3) {
-      return {
-        aposde: "--",
-        cashout: "--",
-        maxGales: "--",
-        status: "waiting",
-        placar: "--",
-      };
+      return { ...inactive, aposde };
     }
 
-    // Algorithm: analyze patterns
     const avg = recentVelas.reduce((a, b) => a + b, 0) / recentVelas.length;
-    const lowVelas = recentVelas.filter(v => v < 2).length;
-    const highVelas = recentVelas.filter(v => v >= 2).length;
-    const highRatio = highVelas / recentVelas.length;
+    const highRatio = recentVelas.filter(v => v >= 2).length / recentVelas.length;
 
-    // Count consecutive lows (velas < 2x) at the start (most recent)
     let consecutiveLows = 0;
     for (const v of recentVelas) {
       if (v < 2) consecutiveLows++;
       else break;
     }
 
-    // Predict entry point: after several low velas, the next is likely higher
-    // Use the average of the last 3 low velas as entry reference
-    const lastLows = recentVelas.filter(v => v < 2).slice(0, 3);
-    const entryBase = lastLows.length > 0
-      ? lastLows.reduce((a, b) => a + b, 0) / lastLows.length
-      : 1.5;
-
-    // Entry point: slightly above the average low
-    const entryPoint = Math.max(1.10, Math.min(entryBase * 0.9, 2.0));
-
-    // Cashout prediction: based on trend
-    // If many recent highs, be conservative. If many lows (due for a high), aim higher.
+    // Cashout prediction
     let cashoutTarget: number;
     if (consecutiveLows >= 3) {
-      // After many lows, expect a higher vela - aim for bigger cashout
       cashoutTarget = Math.min(avg * 1.3, 5.0);
     } else if (highRatio > 0.5) {
-      // Good streak, be conservative
       cashoutTarget = Math.max(2.0, avg * 0.8);
     } else {
       cashoutTarget = Math.max(2.0, avg);
     }
     cashoutTarget = Math.max(2.0, cashoutTarget);
 
-    // Max gales based on volatility
     const volatility = Math.sqrt(
       recentVelas.reduce((sum, v) => sum + Math.pow(v - avg, 2), 0) / recentVelas.length
     );
     const maxGales = volatility > 3 ? 3 : 2;
 
-    // Determine result: check if latest vela hit the cashout target
-    const latestVela = ultimaVela;
+    // Status: did the latest vela hit the cashout?
     let status: "green" | "loss" | "waiting";
     let placar: string;
 
-    if (latestVela >= cashoutTarget) {
+    if (ultimaVela >= cashoutTarget) {
       status = "green";
-      placar = `GREEN ${latestVela.toFixed(2)}x`;
-    } else if (latestVela < entryPoint) {
+      placar = `GREEN ${ultimaVela.toFixed(2)}x`;
+    } else if (ultimaVela < 1.5) {
       status = "loss";
-      placar = `LOSS ${latestVela.toFixed(2)}x`;
+      placar = `LOSS ${ultimaVela.toFixed(2)}x`;
     } else {
       status = "waiting";
       placar = `ANALISANDO...`;
     }
 
     return {
-      aposde: `${entryPoint.toFixed(2)}x`,
+      aposde,
       cashout: `${cashoutTarget.toFixed(2)}x`,
       maxGales: String(maxGales),
       status,
       placar,
     };
-  }, [allRecords, ultimaVela]);
+  }, [allRecords, ultimaVela, lastTimestamp]);
 };
