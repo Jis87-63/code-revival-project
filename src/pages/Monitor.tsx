@@ -40,12 +40,20 @@ const Monitor = () => {
           <img src={logoImg} alt="Logo" className="w-8 h-8 rounded-lg object-cover" />
           <h1 className="text-base font-bold text-foreground">Monitor</h1>
         </div>
-        <button
-          onClick={() => navigate("/")}
-          className="px-3 py-1.5 rounded-full text-sm font-semibold border border-border text-primary bg-background hover:bg-card transition-colors"
-        >
-          ← Voltar
-        </button>
+        <div className="flex gap-2">
+          <button
+            onClick={() => navigate("/docs")}
+            className="px-3 py-1.5 rounded-full text-sm font-semibold border border-border text-info bg-background hover:bg-card transition-colors"
+          >
+            📄 Docs
+          </button>
+          <button
+            onClick={() => navigate("/")}
+            className="px-3 py-1.5 rounded-full text-sm font-semibold border border-border text-primary bg-background hover:bg-card transition-colors"
+          >
+            ← Voltar
+          </button>
+        </div>
       </header>
 
       <main className="p-4 max-w-[900px] mx-auto flex flex-col gap-4">
