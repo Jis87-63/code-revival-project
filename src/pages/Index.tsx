@@ -15,9 +15,11 @@ const Index = () => {
   const prediction = usePrediction(allRecords, ultimaVela, lastTimestamp);
   const displayVelas = latestVelas.length > 0 ? latestVelas : [1.23, 3.45, 1.87, 12.5];
 
+  const isSystemActive = lastTimestamp != null && (Date.now() - lastTimestamp) < 10 * 60 * 1000;
+
   return (
     <div className="min-h-screen pb-16 select-none">
-      <AppBar onlineCount={42} isConnected={true} />
+      <AppBar onlineCount={42} isConnected={true} isSystemActive={isSystemActive} />
 
       <main className="p-4 flex flex-col gap-4 max-w-[900px] mx-auto">
         <VelasCard velas={displayVelas} />
