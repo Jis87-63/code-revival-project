@@ -40,7 +40,7 @@ const PromoModal = () => {
             <button
               onClick={() => {
                 close("premium", 40000);
-                window.open("https://txunaplay.com/te44bfd5e", "_blank");
+                window.open("https://go.aff.oddsbest.co/uvvguo18", "_blank");
               }}
               className="flex-1 bg-primary text-primary-foreground rounded-lg py-3.5 font-semibold uppercase text-sm hover:brightness-110 transition-all"
             >
